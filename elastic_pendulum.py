@@ -28,7 +28,7 @@ if torch.cuda.is_available():
 
 # Training parameters
 niters=2000        # training iterations
-data_size=1000      # samples in dataset
+data_size=1000     # samples in dataset
 batch_time = 16    # steps in batch
 batch_size = 128   # samples per batch
 

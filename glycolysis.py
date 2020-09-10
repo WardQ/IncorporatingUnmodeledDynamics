@@ -27,8 +27,8 @@ if torch.cuda.is_available():
   torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
 # Training parameters
-niters=1000        # training iterations
-data_size=1000      # samples in dataset
+niters=2000        # training iterations
+data_size=1000     # samples in dataset
 batch_time = 16    # steps in batch
 batch_size = 256   # samples per batch
 
@@ -234,14 +234,9 @@ for it in range(1, niters + 1):
 
 ### VISUALIZATION ###
 
-pred_y = odeint(model, true_y0.view(1,1,4), t, method='rk4').view(-1,1,4)
+pred_y = odeint(model, true_y0.view(1,1,7), t, method='rk4').view(-1,1,7)
 
 plt.figure(figsize=(20, 10))
-plt.plot(t.detach().cpu().numpy(), pred_y[:,0,2].detach().cpu().numpy())
-plt.plot(t.detach().cpu().numpy(), true_y[:,0,2].cpu().numpy(), 'o')
-plt.show()  
-
-plt.figure(figsize=(20, 10))
-plt.plot(pred_y[:,0,2].detach().cpu().numpy(), pred_y[:,0,3].detach().cpu().numpy())
-plt.plot(true_y[:,0,2].detach().cpu().numpy(), true_y[:,0,3].cpu().numpy(), 'o')
+plt.plot(t.detach().cpu().numpy(), pred_y[:,0].detach().cpu().numpy())
+plt.plot(t.detach().cpu().numpy(), true_y[:,0].cpu().numpy(), 'o')
 plt.show()
