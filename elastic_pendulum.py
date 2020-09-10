@@ -27,7 +27,7 @@ if torch.cuda.is_available():
   torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
 # Training parameters
-niters=1000        # training iterations
+niters=2000        # training iterations
 data_size=1000      # samples in dataset
 batch_time = 16    # steps in batch
 batch_size = 128   # samples per batch
@@ -76,7 +76,7 @@ class elastic_pendulum(nn.Module):
 
 # Initial condition & time span
 true_y0 = torch.tensor([[-.75, 0., 1.25, 0.]]).to(device)
-t = torch.linspace(0., 4., data_size).to(device)
+t = torch.linspace(0., 10., data_size).to(device)
 
 # Disable backprop, solve system of ODEs
 print("Generating data.")
@@ -97,7 +97,7 @@ def get_batch(batch_time, batch_size):
 
 ### MODELS ###
 
-# Purely first-principles model
+# Purely first-principles model based on incomplete knowledge
 class pureODE(nn.Module):
   
     def __init__(self, p0):
@@ -144,7 +144,7 @@ class neuralODE(nn.Module):
 
         return torch.cat((dx, ddx, dtheta, ddtheta), dim=-1).to(device)
 
-# Integrated first-principles/data-driven model      
+# Integrated first-principles/data-driven model based on incomplete knowledge  
 class hybridODE(nn.Module):
 
     def __init__(self, p0):
@@ -187,7 +187,7 @@ lr = 1e-2                                       # learning rate
 p0 = torch.tensor([2., 360., 1.]).to(device)    # initial conditions parameters
 model = hybridODE(p0).to(device)                # choose type of model to train (pureODE(p0), neuralODE(), hybridODE(p0))
 optimizer = optim.Adam(model.parameters(), lr=1e-2)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1500, gamma=0.1) #optional learning rate scheduler
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.1) #optional learning rate scheduler
 
 
 print("Starting training.")
@@ -200,8 +200,8 @@ for it in range(1, niters + 1):
     optimizer.step()
     scheduler.step()
 
-    if (it) % 100 == 0:
-        print('Iteration: ', it)
+    if (it) % 250 == 0:
+        print('Iteration: ', it, '/', niters)
 
 ### VISUALIZATION ###
 
@@ -210,9 +210,13 @@ pred_y = odeint(model, true_y0.view(1,1,4), t, method='rk4').view(-1,1,4)
 plt.figure(figsize=(20, 10))
 plt.plot(t.detach().cpu().numpy(), pred_y[:,0,2].detach().cpu().numpy())
 plt.plot(t.detach().cpu().numpy(), true_y[:,0,2].cpu().numpy(), 'o')
+plt.xlabel('t')
+plt.ylabel('theta')
 plt.show()  
 
 plt.figure(figsize=(20, 10))
 plt.plot(pred_y[:,0,2].detach().cpu().numpy(), pred_y[:,0,3].detach().cpu().numpy())
 plt.plot(true_y[:,0,2].detach().cpu().numpy(), true_y[:,0,3].cpu().numpy(), 'o')
+plt.xlabel('theta')
+plt.ylabel('dtheta')
 plt.show()
