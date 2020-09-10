@@ -97,6 +97,7 @@ def get_batch(batch_time, batch_size):
 
 ### MODELS ###
 
+# Purely first-principles model
 class pureODE(nn.Module):
   
     def __init__(self, p0):
@@ -117,6 +118,7 @@ class pureODE(nn.Module):
 
         return torch.stack([dx, ddx, dtheta, ddtheta], dim=1).view(-1,1,4).to(device)
 
+# Data-driven model
 class neuralODE(nn.Module):
 
     def __init__(self):
@@ -142,7 +144,7 @@ class neuralODE(nn.Module):
 
         return torch.cat((dx, ddx, dtheta, ddtheta), dim=-1).to(device)
 
-      
+# Integrated first-principles/data-driven model      
 class hybridODE(nn.Module):
 
     def __init__(self, p0):
